@@ -1,0 +1,22 @@
+﻿groups:
+  - name: robot-shop-slo
+    rules:
+      - alert: RobotShopAvailabilityBelowSLO
+        expr: avg_over_time(probe_success{job="robot-shop-availability"}[5m]) < 0.99
+        for: 5m
+        labels:
+          severity: warning
+          service: robot-shop
+        annotations:
+          summary: "Robot Shop availability is below the 99% SLO"
+          description: "Successful availability probes have averaged below 99% over the evaluation window. Check the Robot Shop web service and recent logs."
+
+      - alert: RobotShopAvailabilityCritical
+        expr: avg_over_time(probe_success{job="robot-shop-availability"}[5m]) < 0.95
+        for: 2m
+        labels:
+          severity: critical
+          service: robot-shop
+        annotations:
+          summary: "Robot Shop availability is critically low"
+          description: "Successful availability probes have averaged below 95%. Investigate the web service, Kubernetes events, and recent logs immediately."

@@ -1,0 +1,60 @@
+﻿alertmanager:
+  enabled: false
+
+pushgateway:
+  enabled: false
+
+serverFiles:
+  alerting_rules.yml:
+    groups:
+      - name: robot-shop-slo
+        rules:
+          - alert: RobotShopAvailabilityBelowSLO
+            expr: avg_over_time(probe_success{job="robot-shop-availability"}[5m]) < 0.99
+            for: 5m
+            labels:
+              severity: warning
+              service: robot-shop
+            annotations:
+              summary: "Robot Shop availability is below the 99% SLO"
+              description: "Availability probes are averaging below 99%. Check the web service and recent logs."
+          - alert: RobotShopAvailabilityCritical
+            expr: avg_over_time(probe_success{job="robot-shop-availability"}[5m]) < 0.95
+            for: 2m
+            labels:
+              severity: critical
+              service: robot-shop
+            annotations:
+              summary: "Robot Shop availability is critically low"
+              description: "Availability probes are averaging below 95%. Investigate immediately."
+server:
+  persistentVolume:
+    enabled: false
+  service:
+    type: ClusterIP
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+prometheus-node-exporter:
+  enabled: false
+
+extraScrapeConfigs: |
+  - job_name: "robot-shop-availability"
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://web.robot-shop.svc.cluster.local:8080
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
