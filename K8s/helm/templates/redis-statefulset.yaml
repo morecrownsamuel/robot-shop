@@ -47,6 +47,7 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  {{- if .Values.redis.persistence }}
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -59,4 +60,8 @@ spec:
         resources:
           requests:
             storage: 1Gi
-
+  {{- else }}
+      volumes:
+        - name: data
+          emptyDir: {}
+  {{- end }}
