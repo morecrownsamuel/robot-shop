@@ -1,69 +1,22 @@
-﻿# Robot Shop SLO and Error-Budget Policy
+# Robot Shop Availability SLO and Error-Budget Policy
 
-## 1. Purpose
+## Objective
+Provide a measurable availability target for the user-facing Robot Shop application. This is a proposed policy for the capstone and must be connected to real request metrics before it is treated as an operational SLO.
 
-Define a measurable reliability objective for Robot Shop and a policy for
-responding when service reliability deteriorates.
+## Service-level indicator (SLI)
+**Successful request ratio** = successful HTTP requests / all valid HTTP requests, measured at the web entry point over a rolling 30-day window. Define success as HTTP status 2xx or 3xx; treat 5xx responses and qualifying timeouts as failures. Exclude health probes and explicitly documented invalid requests.
 
-## 2. Service-Level Objective (SLO)
+## Service-level objective (SLO)
+Target: **99% successful requests over a rolling 30-day window.**
 
-- Service: Robot Shop web application
-- Availability target: 99% over a rolling 30-day window
-- Measurement: Prometheus Blackbox Exporter probing
-  http://web.robot-shop.svc.cluster.local:8080
-- Success condition: The probe returns HTTP success (2xx).
-- Failure condition: The probe fails or does not return HTTP success.
-- Measurement metric: `probe_success`
+## Error budget
+At 99% availability, the error budget is 1% of eligible requests during the same window. For example, out of 100,000 eligible requests, up to 1,000 may fail before the target is missed. Calculate the budget from measured traffic, not estimated request counts.
 
-This is the intended SLO. Actual compliance must be established from
-collected Prometheus measurements over the evaluation window.
+## Alerting and response
+- Alert when the measured success ratio is below the SLO or a sustained error-rate increase consumes the budget rapidly.
+- The alert should identify the service, time window, dashboard link and runbook link.
+- First response: acknowledge, assess user impact, mitigate, then investigate root cause.
+- If the budget is exhausted, prioritize reliability fixes over risky changes until the service recovers.
 
-## 3. Error Budget
-
-For a 30-day window:
-
-- Total time: 43,200 minutes
-- Allowed unavailability at 99% availability: 432 minutes
-- Error-budget consumption: Failed probe time divided by total measured time
-- Remaining budget: 100% minus the percentage consumed
-
-Probe results are sampled measurements and do not prove that every user
-request succeeded or failed.
-
-## 4. Alerting Policy
-
-Proposed alert thresholds:
-
-- Warning: Availability below 99% over a sustained evaluation window.
-- Critical: Availability below 95% over a sustained evaluation window.
-- Immediate investigation: Repeated probe failures or a sustained outage.
-
-These thresholds must be implemented as Prometheus alert rules and
-validated before they can be described as active alerts. Slack delivery
-must also be configured and tested separately.
-
-## 5. Response Procedure
-
-1. Acknowledge the alert and record the incident start time.
-2. Check the Robot Shop web deployment, pods, service endpoints, and events.
-3. Inspect Prometheus probe results and relevant Loki logs.
-4. Identify the impact and restore service using a controlled, reversible action.
-5. Verify application availability after recovery.
-6. Record the timeline, contributing factors, recovery steps, and follow-up actions.
-
-## 6. Error-Budget Policy
-
-When the error budget is being consumed rapidly:
-
-- Prioritize reliability fixes over optional changes.
-- Avoid risky releases while an active incident is unresolved.
-- Review recurring failures and agree on corrective actions.
-- Reassess the budget using measured data rather than assumptions.
-
-## 7. Evidence and Review
-
-Retain the Prometheus query or exported results used to assess availability,
-the relevant Grafana dashboard, alert-rule configuration, incident evidence,
-and the postmortem.
-
-Review the SLO and its measurement method during the final capstone audit.
+## Evidence / limitations
+This is a documented policy proposal. It is not evidence that a Prometheus SLI, alert rule, Slack delivery or incident drill has been tested. Record the actual metric name, dashboard, alert rule and test timestamp when verified.
