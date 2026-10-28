@@ -1,4 +1,4 @@
-alertmanager:
+﻿alertmanager:
   enabled: false
 
 pushgateway:
@@ -35,3 +35,15 @@ extraScrapeConfigs: |
         target_label: instance
       - target_label: __address__
         replacement: blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+
+  - job_name: "robot-shop-cart"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - cart.robot-shop.svc.cluster.local:8080
+
+  - job_name: "robot-shop-payment"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - payment.robot-shop.svc.cluster.local:8080
