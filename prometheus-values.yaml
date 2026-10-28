@@ -4,29 +4,6 @@ alertmanager:
 pushgateway:
   enabled: false
 
-serverFiles:
-  alerting_rules.yml:
-    groups:
-      - name: robot-shop-slo
-        rules:
-          - alert: RobotShopAvailabilityBelowSLO
-            expr: avg_over_time(probe_success{job="robot-shop-availability"}[5m]) < 0.99
-            for: 5m
-            labels:
-              severity: warning
-              service: robot-shop
-            annotations:
-              summary: "Robot Shop availability is below the 99% SLO"
-              description: "Availability probes are averaging below 99%. Check the web service and recent logs."
-          - alert: RobotShopAvailabilityCritical
-            expr: avg_over_time(probe_success{job="robot-shop-availability"}[5m]) < 0.95
-            for: 2m
-            labels:
-              severity: critical
-              service: robot-shop
-            annotations:
-              summary: "Robot Shop availability is critically low"
-              description: "Availability probes are averaging below 95%. Investigate immediately."
 server:
   persistentVolume:
     enabled: false
@@ -57,4 +34,4 @@ extraScrapeConfigs: |
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
+        replacement: blackbox-prometheus-blackbox-exporter.monitoring.svc.cluster.local:9115
