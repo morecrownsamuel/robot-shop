@@ -2,4 +2,19 @@
 .DS_Store
 *-private.*
 vendor/
-Gopkg.lock
+Gopkg.lock# Node.js dependencies
+**/node_modules/
+
+# Backup files
+*.bak
+
+# Local rendered and validation outputs
+fluent-bit-rendered.yaml
+grafana-rendered.yaml
+loki-rendered.yaml
+prometheus-rendered.yaml
+rendered-robot-shop.yaml
+prometheus-validation.txt
+loki-default-values.yaml
+prometheus-default-values.yaml
+ebs-csi-trust-policy.json
