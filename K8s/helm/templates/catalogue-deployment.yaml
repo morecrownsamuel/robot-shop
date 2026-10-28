@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+﻿apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: catalogue
@@ -21,6 +21,11 @@ spec:
       - name: catalogue
         image: {{ .Values.image.repo }}/rs-catalogue:{{ .Values.image.version }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: OTEL_SERVICE_NAME
+          value: catalogue
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          value: http://jaeger.monitoring.svc.cluster.local:4318/v1/traces
         ports:
         - containerPort: 8080
         resources:
@@ -43,3 +48,5 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
+
