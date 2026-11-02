@@ -1,16 +1,14 @@
-FROM node:14
-
-ENV INSTANA_AUTO_PROFILE true
-
-EXPOSE 8080
+﻿FROM node:22-bookworm-slim
 
 WORKDIR /opt/server
 
-COPY package.json /opt/server/
+COPY package*.json ./
 
-RUN npm install
+RUN npm ci --omit=dev
 
-COPY server.js /opt/server/
+COPY server.js ./
+COPY tracing.js ./
+
+EXPOSE 8080
 
 CMD ["node", "server.js"]
-
