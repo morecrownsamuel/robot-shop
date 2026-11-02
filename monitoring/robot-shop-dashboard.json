@@ -464,7 +464,52 @@
         }
       ]
     }
-  ],
+  ,
+    {
+      "id": 7,
+      "title": "HTTP Request Rate by Service",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (job) (rate(robot_shop_http_requests_total[5m]))",
+          "legendFormat": "{{job}}",
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "HTTP 5xx Error Rate by Service",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 48},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (job) (rate(robot_shop_http_requests_total{status_code=~\"5..\"}[5m]))",
+          "legendFormat": "{{job}}",
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "HTTP Latency P95 by Service",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 56},
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le, job) (rate(robot_shop_http_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "{{job}}",
+          "range": true
+        }
+      ]
+    }],
   "preload": false,
   "schemaVersion": 42,
   "tags": [],
