@@ -1,19 +1,15 @@
-FROM python:3.9
 
-EXPOSE 8080
-USER root
-
-ENV INSTANA_SERVICE_NAME=payment
+FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt /app/
+COPY requirements.txt ./
 
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY *.py /app/
-COPY payment.ini /app/
+COPY *.py ./
+COPY payment.ini ./
 
-#CMD ["python", "payment.py"]
+EXPOSE 8080
+
 CMD ["uwsgi", "--ini", "payment.ini"]
-
