@@ -19,7 +19,7 @@ spec:
       {{ end }}
       containers:
       - name: cart
-        image: {{ .Values.image.repo }}/rs-cart:{{ .Values.image.version }}
+        image: {{ dig "image" "repository" (printf "%s/rs-cart" .Values.image.repo) .Values.cart }}:{{ dig "image" "tag" .Values.image.version .Values.cart }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: 8080

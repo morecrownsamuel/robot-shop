@@ -1,11 +1,3 @@
-const instana = require('@instana/collector');
-// init tracing
-// MUST be done before loading anything else!
-instana({
-    tracing: {
-        enabled: true
-    }
-});
 
 const redis = require('redis');
 const request = require('request');
@@ -20,6 +12,22 @@ const register = new Registry();
 const counter = new promClient.Counter({
     name: 'items_added',
     help: 'running count of items added to cart',
+    registers: [register]
+});
+
+// HTTP request metrics
+const httpRequests = new promClient.Counter({
+    name: 'robot_shop_http_requests_total',
+    help: 'Total HTTP requests handled by the cart service',
+    labelNames: ['method', 'route', 'status_code'],
+    registers: [register]
+});
+
+const httpRequestDuration = new promClient.Histogram({
+    name: 'robot_shop_http_request_duration_seconds',
+    help: 'HTTP request duration in seconds for the cart service',
+    labelNames: ['method', 'route', 'status_code'],
+    buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
     registers: [register]
 });
 
@@ -41,24 +49,41 @@ const expLogger = expPino({
 const app = express();
 
 app.use(expLogger);
+// Record HTTP request count and response duration
+app.use((req, res, next) => {
+    // Prevent Prometheus scraping from inflating request metrics
+    if (req.path === '/metrics') {
+        return next();
+    }
+
+    const start = process.hrtime();
+
+    res.on('finish', () => {
+        const elapsed = process.hrtime(start);
+        const duration = elapsed[0] + elapsed[1] / 1e9;
+
+        // Use Express route patterns instead of dynamic URL IDs
+        const route = req.route
+            ? req.baseUrl + req.route.path
+            : 'unmatched';
+
+        const labels = {
+            method: req.method,
+            route: route,
+            status_code: String(res.statusCode)
+        };
+
+        httpRequests.inc(labels);
+        httpRequestDuration.observe(labels, duration);
+    });
+
+    next();
+});
+
 
 app.use((req, res, next) => {
     res.set('Timing-Allow-Origin', '*');
     res.set('Access-Control-Allow-Origin', '*');
-    next();
-});
-
-app.use((req, res, next) => {
-    let dcs = [
-        "asia-northeast2",
-        "asia-south1",
-        "europe-west3",
-        "us-east1",
-        "us-west1"
-    ];
-    let span = instana.currentSpan();
-    span.annotate('custom.sdk.tags.datacenter', dcs[Math.floor(Math.random() * dcs.length)]);
-
     next();
 });
 
