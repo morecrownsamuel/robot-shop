@@ -18,18 +18,35 @@ spec:
       serviceAccountName: robot-shop
       {{ end }}
       containers:
-      - name: web
-        image: {{ .Values.image.repo }}/rs-web:{{ .Values.image.version }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        ports:
-        - containerPort: 8080
-        resources:
-          limits:
-            cpu: 200m
-            memory: 100Mi
-          requests:
-            cpu: 100m
-            memory: 50Mi
+        - name: web
+          image: {{ .Values.image.repo }}/rs-web:{{ .Values.image.version }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 200m
+              memory: 100Mi
+            requests:
+              cpu: 100m
+              memory: 50Mi
+
+        {{- if .Values.web.nginxExporter.enabled }}
+        - name: nginx-exporter
+          image: {{ .Values.web.nginxExporter.image }}
+          args:
+            - --nginx.scrape-uri=http://127.0.0.1:8080/nginx_status
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.web.nginxExporter.port }}
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+        {{- end }}
       restartPolicy: Always
       {{- with .Values.web.affinity }}
       affinity:

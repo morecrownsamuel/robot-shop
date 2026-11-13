@@ -56,4 +56,8 @@ shipping: {}
 
 user: {}
 
-web: {}
+web:
+  nginxExporter:
+    enabled: true
+    image: nginx/nginx-prometheus-exporter:1.4.2
+    port: 9113
