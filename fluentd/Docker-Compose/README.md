@@ -27,6 +27,3 @@ services:
 If Robot Shop is already running, shut it down `docker-compose down`
 
 Start Robot Shop with `docker-compose up -d`. It takes a few minutes to start, after that check with Humio or ELK for log entries.
-
-Set up [logging integration](https://www.instana.com/docs/logging/) in Instana.
-

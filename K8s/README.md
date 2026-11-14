@@ -1,6 +1,3 @@
-# Instana Agent Install
-
-The easiest way to install the Instana agent is with the helm [chart](https://hub.helm.sh/charts/stable/instana-agent). If you really want to do it by hand, template descriptors are available in the official [documentation](https://docs.instana.io/ecosystem/kubernetes/).
 
 # Stan's Robot Shop Install
 
@@ -19,7 +16,7 @@ You can apply resource quotas to the namespace where you installed Stan's Robot 
 $ kubectl -n robot-shop apply -f resource-quota.yaml
 ```
 
-The quotas and usage are shown in the Instana Kubernetes dashboards.
+Use kubectl to inspect resource quotas and their usage.
 
 Optinally you can also run the `autoscale.sh` script to configure automatic scaling of the deployments. You will need to edit the script if you did not deploy to the `robot-shop` namespace. Varying the load on the application will cause Kubernetes to scale up/down the various deployments.
 
@@ -38,5 +35,3 @@ $ kubectl -n istio-system get svc istio-ingressgateway
 ```
 
 The above will display the IP address of the Istio gateway.
-
-**NOTE** The Instana agent only works with later versions of Istio.
